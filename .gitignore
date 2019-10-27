@@ -1,0 +1,5 @@
+.idea/
+centos-php-apache-5/logs/
+centos-php-apache-7/logs/
+applications/
+databases/

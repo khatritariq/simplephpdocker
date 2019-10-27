@@ -1,0 +1,51 @@
+version: '3.3'
+networks:
+    main:
+        ipam:
+            config:
+                - subnet: 172.28.5.0/24
+services:
+    centos-php-apache-72:
+        container_name: centos-php72
+        build:
+            context: ./centos-php-apache-7
+        ports:
+            - 80:80
+        environment:
+            PHP_EXTENSION_XDEBUG: 1
+        volumes:
+            - /var/www/vhosts:/var/www/vhosts
+            - ./centos-php-apache-7/vhosts.conf:/etc/httpd/conf.d
+            - ./centos-php-apache-7/logs:/etc/httpd/logs
+        expose:
+            - "80"
+        links:
+            - 'db'
+        networks:
+            main:
+                aliases:
+                    - local.insider.demo.com
+                ipv4_address: 172.28.5.2
+    db:
+        container_name: mysql57
+        image: mysql:5.7
+        ports:
+        - 3307:3306
+        volumes:
+            - db:/var/lib/mysql
+            - ./databases:/var/www/databases
+
+        environment:
+            MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+            MYSQL_ROOT_PASSWORD: "password"
+            MYSQL_USER: 'disrupt'
+        command: mysqld --sql_mode="STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+        expose:
+            - "3306"
+        networks:
+            main:
+                aliases:
+                    - db
+                ipv4_address: 172.28.5.4    
+volumes:
+    db:
